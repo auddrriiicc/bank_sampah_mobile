@@ -36,30 +36,41 @@ class ApiService {
     }
   }
 
-  // FUNGSI REGISTER MASYARAKAT
-  static Future<Map<String, dynamic>> registerMasyarakat(Map<String, dynamic> dataUser) async {
+  static Future<Map<String, dynamic>> registerMasyarakat(Map<String, dynamic> data) async {
     try {
+      final url = Uri.parse('$baseUrl/register'); // Pastikan '/register' adalah rute API yang benar
+      
       final response = await http.post(
-        Uri.parse('$baseUrl/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(dataUser),
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(data),
       );
 
-      final data = jsonDecode(response.body);
-
+      // Cek status code dari server
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {
           'success': true,
-          'message': data['message'] ?? 'Pendaftaran berhasil!'
+          'message': 'Registrasi berhasil',
+          'data': jsonDecode(response.body),
         };
       } else {
+        // Tangkap pesan error dari API jika ada
+        final errorData = jsonDecode(response.body);
         return {
           'success': false,
-          'message': data['message'] ?? 'Pendaftaran gagal'
+          'message': errorData['message'] ?? 'Gagal mendaftar. Silakan coba lagi.',
         };
       }
     } catch (e) {
-      return {'success': false, 'message': 'Gagal terhubung ke server: $e'};
+      // Print error ke terminal untuk mengecek penyebab pastinya
+      print('Error detail: $e'); 
+      return {
+        'success': false,
+        'message': 'Gagal terhubung ke server. Periksa koneksi atau URL server.',
+      };
     }
   }
 
