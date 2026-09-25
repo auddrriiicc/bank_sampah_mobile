@@ -1,41 +1,89 @@
 import 'package:flutter/material.dart';
+import '../login_screen.dart';
+import 'persetujuan_akun_screen.dart';
+import 'kelola_artikel_screen.dart';
+import 'kelola_voucher_screen.dart';
 
-class SuperAdminDashboard extends StatefulWidget {
+class SuperAdminDashboard extends StatelessWidget {
   final Map<String, dynamic>? userData;
+
   const SuperAdminDashboard({super.key, this.userData});
 
   @override
-  State<SuperAdminDashboard> createState() => _SuperAdminDashboardState();
-}
-
-class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
-  int _currentIndex = 0;
-  final List<Widget> _pages = [
-    const Center(child: Text('Halaman Beranda')),
-    const Center(child: Text('Daftar Masyarakat')), // Merujuk ke[cite: 29]
-    const Center(child: Text('Daftar Bank Sampah')), // Merujuk ke[cite: 28]
-    const Center(child: Text('Edukasi')), // Merujuk ke[cite: 27]
-    const Center(child: Text('Pengaturan')), // Merujuk ke[cite: 26]
-  ];
-
-  @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF11522E);
+    final namaUser = userData?['nama'] ?? userData?['username'] ?? 'Super Admin';
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Panel Super Admin'), backgroundColor: const Color(0xFF11522E)),
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF11522E),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Masyarakat'),
-          BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Bank'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Edukasi'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Pengaturan'),
+      appBar: AppBar(
+        title: const Text('Dashboard Super Admin'),
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            ),
+          )
         ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          Card(
+            color: Colors.black87,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Selamat Datang, $namaUser!', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  const Text('Akses Utama Sistem (Super Admin)', style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Kontrol Sistem Utama', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            children: [
+              _buildMenuCard(context, Icons.how_to_reg, 'Persetujuan Akun', Colors.deepOrange, const PersetujuanAkunScreen()),
+              _buildMenuCard(context, Icons.article, 'Kelola Artikel Edukasi', Colors.blueAccent, const KelolaArtikelScreen()),
+              _buildMenuCard(context, Icons.card_giftcard, 'Kelola Voucher/Poin', Colors.purple, const KelolaVoucherScreen()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuCard(BuildContext context, IconData icon, String title, Color color, Widget target) {
+    return InkWell(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => target)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 36, color: color),
+            const SizedBox(height: 8),
+            Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+          ],
+        ),
       ),
     );
   }
