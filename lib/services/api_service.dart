@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'https://bank-sampah-backend.vercel.app/api';
+  static const String baseUrl = 'https://bank-sampah-backend.vercel.app//api';
 
   // FUNGSI LOGIN
   static Future<Map<String, dynamic>> login(String username, String password) async {
