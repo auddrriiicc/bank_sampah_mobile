@@ -57,9 +57,10 @@ class AdminBankDashboard extends StatelessWidget {
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             children: [
-              _buildMenuCard(context, Icons.qr_code_scanner, 'Verifikasi Setoran', Colors.teal, const VerifikasiSetorScreen()),
-              _buildMenuCard(context, Icons.people, 'Data Nasabah', Colors.indigo, const KelolaNasabahScreen()),
-              _buildMenuCard(context, Icons.bar_chart, 'Laporan Setoran', Colors.amber.shade800, const LaporanSetoranScreen()),
+              // PERBAIKAN: Hapus kata 'const' sebelum nama layar
+              _buildMenuCard(context, Icons.qr_code_scanner, 'Verifikasi Setoran', Colors.teal, VerifikasiSetorScreen()),
+              _buildMenuCard(context, Icons.people, 'Data Nasabah', Colors.indigo, KelolaNasabahScreen()),
+              _buildMenuCard(context, Icons.bar_chart, 'Laporan Setoran', Colors.amber.shade800, LaporanSetoranScreen()),
             ],
           ),
         ],

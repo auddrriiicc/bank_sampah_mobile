@@ -57,9 +57,10 @@ class SuperAdminDashboard extends StatelessWidget {
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             children: [
-              _buildMenuCard(context, Icons.how_to_reg, 'Persetujuan Akun', Colors.deepOrange, const PersetujuanAkunScreen()),
-              _buildMenuCard(context, Icons.article, 'Kelola Artikel Edukasi', Colors.blueAccent, const KelolaArtikelScreen()),
-              _buildMenuCard(context, Icons.card_giftcard, 'Kelola Voucher/Poin', Colors.purple, const KelolaVoucherScreen()),
+              // PERBAIKAN: Hapus kata kunci 'const' sebelum nama class layar
+              _buildMenuCard(context, Icons.how_to_reg, 'Persetujuan Akun', Colors.deepOrange, PersetujuanAkunScreen()),
+              _buildMenuCard(context, Icons.article, 'Kelola Artikel Edukasi', Colors.blueAccent, KelolaArtikelScreen()),
+              _buildMenuCard(context, Icons.card_giftcard, 'Kelola Voucher/Poin', Colors.purple, KelolaVoucherScreen()),
             ],
           ),
         ],
