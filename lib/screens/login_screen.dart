@@ -18,6 +18,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _prosesLogin() async {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
@@ -30,23 +37,20 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     setState(() => _isLoading = true);
-
     final result = await ApiService.login(username, password);
-
     setState(() => _isLoading = false);
 
     if (!mounted) return;
 
     if (result['success'] == true) {
-    final user = result['user'] as Map<String, dynamic>?;
-final String role = user?['role'] ?? result['role'] ?? '';
+      final user = result['user'] as Map<String, dynamic>?;
+      final String role = user?['role'] ?? result['role'] ?? '';
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message'] ?? 'Login Berhasil!')),
       );
 
       Widget targetPage;
-
       switch (role.toLowerCase()) {
         case 'masyarakat':
           targetPage = MasyarakatDashboard(userData: user);
@@ -93,24 +97,15 @@ final String role = user?['role'] ?? result['role'] ?? '';
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      color: primaryColor,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: const BoxDecoration(color: primaryColor, shape: BoxShape.circle),
                     child: const Icon(Icons.bolt, color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 12),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Bank Sampah',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Sekanak Connect',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
+                      Text('Bank Sampah', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('Sekanak Connect', style: TextStyle(fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                 ],
@@ -168,10 +163,7 @@ final String role = user?['role'] ?? result['role'] ?? '';
                   const Text("Belum punya akun? "),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
                     },
                     child: const Text("Daftar di sini", style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
                   ),

@@ -17,9 +17,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _jenisKelamin = 'Laki-laki';
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _namaCtrl.dispose();
+    _nikCtrl.dispose();
+    _phoneCtrl.dispose();
+    _usernameCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleRegister() async {
     if (_namaCtrl.text.isEmpty || _nikCtrl.text.isEmpty || _usernameCtrl.text.isEmpty || _passwordCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Semua field bernoda * wajib diisi!')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Semua field bertanda * wajib diisi!')));
       return;
     }
 
@@ -46,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message']), backgroundColor: Colors.green),
       );
-      Navigator.pop(context); // Kembali ke Login Screen
+      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message']), backgroundColor: Colors.red),
@@ -72,10 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Container(
             constraints: const BoxConstraints(maxWidth: 450),
             padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -106,11 +113,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleRegister,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: primaryGreen, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14)),
                   child: _isLoading
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Text('DAFTAR SEKARANG', style: TextStyle(fontWeight: FontWeight.bold)),
