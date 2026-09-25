@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import 'super_admin/super_admin_dashboard.dart';
 import 'register_screen.dart';
+import 'masyarakat/masyarakat_dashboard.dart';
+import 'admin_bank/admin_bank_dashboard.dart';
+import 'super_admin/super_admin_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,12 +13,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _isObscure = true;
+  bool _isLoading = false;
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
-  bool _obscurePassword = true;
 
-  Future<void> _handleLogin() async {
+  void _prosesLogin() async {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -35,30 +37,40 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!mounted) return;
 
-    if (result['success']) {
-      final String role = (result['role'] ?? '').toString().toLowerCase();
+    if (result['success'] == true) {
+    final user = result['user'] as Map<String, dynamic>?;
+final String role = user?['role'] ?? result['role'] ?? '';
 
-      // Routing Berdasarkan Role Dari Database Server Website
-      if (role == 'super_admin' || role == 'superadmin') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const SuperAdminDashboard()),
-        );
-      } else if (role == 'admin_bank' || role == 'adminbank') {
-        // Arahkan ke Dashboard Admin Bank Sampah
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Admin Bank Sampah Berhasil!')),
-        );
-      } else {
-        // Role Masyarakat
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Masyarakat Berhasil!')),
-        );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? 'Login Berhasil!')),
+      );
+
+      Widget targetPage;
+
+      switch (role.toLowerCase()) {
+        case 'masyarakat':
+          targetPage = MasyarakatDashboard(userData: user);
+          break;
+        case 'admin_bank':
+        case 'admin':
+          targetPage = AdminBankDashboard(userData: user);
+          break;
+        case 'super_admin':
+          targetPage = SuperAdminDashboard(userData: user);
+          break;
+        default:
+          targetPage = MasyarakatDashboard(userData: user);
+          break;
       }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => targetPage),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['message'] ?? 'Username/Password salah!'),
+          content: Text(result['message'] ?? 'Login Gagal'),
           backgroundColor: Colors.red,
         ),
       );
@@ -67,114 +79,105 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryGreen = Color(0xFF11522E);
+    const primaryColor = Color(0xFF11522E);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F7F4),
-      body: Center(
+      body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(28.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header Logo
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(color: primaryGreen, shape: BoxShape.circle),
-                  child: const Icon(Icons.bolt, color: Colors.white, size: 36),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Bank Sampah Sekanak',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryGreen),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Masuk menggunakan akun terdaftar',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                const SizedBox(height: 28),
-
-                // Form Username
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    prefixIcon: const Icon(Icons.person_outline),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Form Password
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: primaryColor,
+                      shape: BoxShape.circle,
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.bolt, color: Colors.white, size: 24),
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Tombol Login
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('MASUK', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                ),
-                const SizedBox(height: 20),
-
-                // Opsi Pendaftaran Masyarakat
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Belum punya akun masyarakat? ', style: TextStyle(fontSize: 12)),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                        );
-                      },
-                      child: const Text(
-                        'Daftar Sekarang',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: primaryGreen),
+                  const SizedBox(width: 12),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Bank Sampah',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  ],
+                      Text(
+                        'Sekanak Connect',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+              const Text('Masuk ke Akun Anda', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text('Gunakan NIK / Username dan Password untuk masuk', style: TextStyle(color: Colors.black54)),
+              const SizedBox(height: 32),
+
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'NIK / Username',
+                  filled: true,
+                  fillColor: const Color(0xFFF3F6F4),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: _passwordController,
+                obscureText: _isObscure,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  filled: true,
+                  fillColor: const Color(0xFFF3F6F4),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  suffixIcon: IconButton(
+                    icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setState(() => _isObscure = !_isObscure),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              ElevatedButton(
+                onPressed: _isLoading ? null : _prosesLogin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+                child: _isLoading
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('Masuk', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Belum punya akun? "),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                      );
+                    },
+                    child: const Text("Daftar di sini", style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

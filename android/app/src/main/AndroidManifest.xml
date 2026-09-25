@@ -1,8 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- TAMBAHKAN BARIS INI (Wajib untuk akses API Cloud/Vercel) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="bank_sampah_mobile"
+        android:label="Bank Sampah"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        ...
+    </application>
+</manifest>
         <activity
             android:name=".MainActivity"
             android:exported="true"

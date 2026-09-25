@@ -6,7 +6,11 @@ import 'edukasi_screen.dart';
 import 'riwayat_transaksi_screen.dart';
 
 class MasyarakatDashboard extends StatelessWidget {
-  const MasyarakatDashboard({super.key});
+  final Map<String, dynamic>? userData; // Tambahkan variabel ini
+
+  const MasyarakatDashboard({super.key, this.userData}); // Tambahkan ini
+
+  // ... isi widget lainnya
 
   @override
   Widget build(BuildContext context) {
