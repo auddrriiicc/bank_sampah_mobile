@@ -17,7 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   String _jenisKelamin = 'Laki-laki';
-  String _role = 'masyarakat'; // Tambahan untuk menyimpan role
+  String _role = 'masyarakat'; // Default role
   bool _isLoading = false;
 
   @override
@@ -30,27 +30,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  // Fungsi Bypass untuk langsung melompat ke Dashboard (Hanya untuk testing UI)
+  // Fungsi Bypass untuk melompat ke Dashboard sesuai Role (Hanya untuk testing UI)
   void _bypassKeDashboard() {
     final mockUser = {
-      'nama': _namaCtrl.text.isNotEmpty ? _namaCtrl.text : 'Tester',
+      'nama': _namaCtrl.text.isNotEmpty ? _namaCtrl.text : 'Tester User',
       'role': _role,
     };
 
-    Widget targetPage = _role == 'masyarakat' 
-        ? MasyarakatDashboard(userData: mockUser)
-        : AdminBankDashboard(userData: mockUser);
+    Widget targetPage = _role == 'admin_bank'
+        ? AdminBankDashboard(userData: mockUser)
+        : MasyarakatDashboard(userData: mockUser);
 
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => targetPage),
-      (route) => false, // Menghapus tumpukan halaman sebelumnya
+      (route) => false, 
     );
   }
 
   Future<void> _handleRegister() async {
     if (_namaCtrl.text.isEmpty || _nikCtrl.text.isEmpty || _usernameCtrl.text.isEmpty || _passwordCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Semua field bertanda * wajib diisi!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Semua field bertanda * wajib diisi!')),
+      );
       return;
     }
 
@@ -63,11 +65,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'jenis_kelamin': _jenisKelamin,
       'username': _usernameCtrl.text.trim(),
       'password': _passwordCtrl.text.trim(),
-      'role': _role, // Mengirim role yang dipilih (masyarakat / admin_bank)
+      'role': _role, // Role dikirim dinamis berdasarkan pilihan dropdown
       'status': 'Menunggu',
     };
 
-    // Memanggil API Service
     final result = await ApiService.registerMasyarakat(data);
 
     setState(() => _isLoading = false);
@@ -77,24 +78,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message']), backgroundColor: Colors.green),
       );
-      Navigator.pop(context); // Kembali ke login jika sukses beneran
+      Navigator.pop(context); // Kembali ke login jika sukses tersimpan di database
     } else {
-      // JIKA GAGAL TERHUBUNG KE SERVER, MUNCULKAN OPSI BYPASS UNTUK LIHAT UI
+      // JIKA GAGAL TERHUBUNG KE SERVER, MUNCULKAN OPSI BYPASS
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('Server Gagal Dihubungi'),
-          content: Text('${result['message']}\n\nApakah Anda ingin memaksa masuk (bypass) ke Dashboard hanya untuk melihat tampilan UI?'),
+          content: Text('${result['message']}\n\nApakah Anda ingin memaksa masuk (bypass) ke Dashboard (${_role == 'admin_bank' ? 'Admin Bank' : 'Masyarakat'}) untuk testing UI?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Batal'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF11522E), foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF11522E),
+                foregroundColor: Colors.white,
+              ),
               onPressed: () {
-                Navigator.pop(ctx); // Tutup dialog
-                _bypassKeDashboard(); // Langsung lompat ke dashboard
+                Navigator.pop(ctx); 
+                _bypassKeDashboard(); 
               },
               child: const Text('Ya, Lihat Dashboard'),
             ),
@@ -128,17 +132,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const Text('Buat Akun Baru', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryGreen)),
                 const SizedBox(height: 4),
-                const Text('Silakan lengkapi data di bawah ini', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                const Text('Data akan dikirim ke server website untuk diverifikasi', style: TextStyle(fontSize: 12, color: Colors.grey)),
                 const SizedBox(height: 20),
 
-                // -- TAMBAHAN: DROPDOWN PILIH ROLE --
+                // -- DROPDOWN PILIHAN ROLE PENDAFTARAN --
                 DropdownButtonFormField<String>(
                   value: _role,
                   decoration: const InputDecoration(
-                    labelText: 'Mendaftar Sebagai *', 
+                    labelText: 'Daftar Sebagai *',
                     border: OutlineInputBorder(),
                     filled: true,
-                    fillColor: Color(0xFFE8F5E9),
+                    fillColor: Color(0xFFF3F6F4),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'masyarakat', child: Text('Masyarakat (Warga)')),
@@ -146,9 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                   onChanged: (val) => setState(() => _role = val!),
                 ),
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 TextField(controller: _namaCtrl, decoration: const InputDecoration(labelText: 'Nama Lengkap *', border: OutlineInputBorder())),
                 const SizedBox(height: 12),
